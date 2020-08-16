@@ -127,8 +127,11 @@ impl Rasterize for FreeTypeRasterizer {
         let face = &mut self.faces.get(&key).ok_or(Error::FontNotLoaded)?;
         let full = self.full_metrics(&face)?;
 
-        let height = (full.size_metrics.height / 64) as f64;
+        let ascent = (full.size_metrics.ascender / 64) as f32;
         let descent = (full.size_metrics.descender / 64) as f32;
+        let distance_between_baselines = (full.size_metrics.height / 64) as f64;
+        let global_glyph_height = (ascent - descent) as f64;
+        let height = f64::max(distance_between_baselines, global_glyph_height);
 
         // Get underline position and thickness in device pixels.
         let x_scale = full.size_metrics.x_scale as f32 / 65536.0;
